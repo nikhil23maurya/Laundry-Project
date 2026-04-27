@@ -10,36 +10,37 @@
   }
 
   body {
-    @apply bg-slate-950 text-slate-100 antialiased;
+    @apply bg-slate-50 text-slate-900 antialiased;
     background-image: radial-gradient(
         circle at 20% 10%,
-        rgba(59, 130, 246, 0.22),
-        transparent 40%
+        rgba(37, 99, 235, 0.14),
+        transparent 42%
       ),
       radial-gradient(
         circle at 90% 0%,
-        rgba(20, 184, 166, 0.18),
-        transparent 40%
+        rgba(20, 184, 166, 0.12),
+        transparent 45%
       ),
       radial-gradient(
         circle at 50% 120%,
-        rgba(249, 115, 22, 0.12),
-        transparent 45%
-      );
+        rgba(249, 115, 22, 0.1),
+        transparent 48%
+      ),
+      linear-gradient(135deg, #f8fafc, #eef2ff);
   }
 }
 
 @layer components {
   .glass {
-    @apply bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-soft;
+    @apply bg-white/70 backdrop-blur-xl border border-slate-200/70 shadow-soft;
   }
 
   .surface {
-    @apply bg-slate-900/70 border border-white/10 rounded-2xl;
+    @apply bg-white/80 border border-slate-200/70 rounded-2xl;
   }
 
   .field {
-    @apply w-full rounded-xl bg-slate-950/30 border border-white/10 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40;
+    @apply w-full rounded-xl bg-white/80 border border-slate-200 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30;
   }
 
   .btn {
@@ -47,15 +48,16 @@
   }
 
   .btn-primary {
-    @apply btn bg-blue-600 hover:bg-blue-500 text-white shadow;
+    @apply btn text-white shadow;
+    background-image: linear-gradient(135deg, #2563eb, #1d4ed8);
   }
 
   .btn-ghost {
-    @apply btn bg-white/5 hover:bg-white/10 border border-white/10;
+    @apply btn bg-slate-900/5 hover:bg-slate-900/10 border border-slate-200;
   }
 
   .badge {
-    @apply inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold tracking-wide;
+    @apply inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold tracking-wide bg-white/60;
   }
 }
 
