@@ -7,6 +7,8 @@ function generatePassword() {
   return crypto.randomBytes(12).toString("base64url");
 }
 
+const { config } = require("../config");
+
 function ensureCatalog() {
   const db = getDb();
   const existing = db
@@ -44,29 +46,31 @@ function ensureCatalog() {
 
 function ensureAdminUser() {
   const db = getDb();
-  const hasAnyUser = db.prepare("SELECT 1 FROM users LIMIT 1").get();
-  if (hasAnyUser) {
-    return null;
-  }
+  const email = String(config.fixedAdminEmail || "admia@gmail.com")
+    .trim()
+    .toLowerCase();
+  const name = "Admin";
+  const password = String(config.fixedAdminPassword || "assignment");
 
-  const email =
-    (process.env.ADMIN_EMAIL && String(process.env.ADMIN_EMAIL).trim()) ||
-    "admin@laundry.local";
-  const name =
-    (process.env.ADMIN_NAME && String(process.env.ADMIN_NAME).trim()) ||
-    "Admin";
-  const password =
-    (process.env.ADMIN_PASSWORD && String(process.env.ADMIN_PASSWORD)) ||
-    generatePassword();
+  const existing = db
+    .prepare("SELECT id FROM users WHERE email = ?")
+    .get([email]);
 
   const passwordHash = bcrypt.hashSync(password, 12);
   const timestamp = nowIso();
+
+  if (existing && existing.id) {
+    db.prepare(
+      "UPDATE users SET name = ?, role = ?, password_hash = ?, updated_at = ? WHERE id = ?"
+    ).run([name, "admin", passwordHash, timestamp, existing.id]);
+    return { email, password };
+  }
 
   db.prepare(
     "INSERT INTO users (id, email, name, role, password_hash, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
   ).run([
     uuidv4(),
-    email.toLowerCase(),
+    email,
     name,
     "admin",
     passwordHash,

@@ -6,7 +6,7 @@ A lightweight (but production-lean) Laundry / Dry Cleaning Order Management Syst
 - Track order status (`RECEIVED -> PROCESSING -> READY -> DELIVERED`)
 - Filter/search orders (status, name/phone/id, garment)
 - Admin dashboard (revenue, status breakdown, last 7 days trend)
-- Authentication (JWT access + rotating refresh tokens) + RBAC (`admin` / `staff`)
+- Authentication (JWT access + rotating refresh tokens) + RBAC (`admin` / `staff` / `customer`)
 - SQLite persistence (no in-memory loss)
 - Premium UI (React + Tailwind)
 
@@ -35,6 +35,15 @@ npm run dev
 
 On first start, the backend seeds an admin user and prints the credentials in the server console (unless `ADMIN_PASSWORD` is set).
 
+### Admin (Fixed Credentials)
+
+- Email: `admia@gmail.com`
+- Password: `assignment`
+
+### Customer
+
+- First create an account from the Login page (Customer tab), then login using the same email/password.
+
 ## Production Build (Single Server)
 
 ```bash
@@ -59,6 +68,7 @@ This serves the compiled UI from `frontend/dist` on the same port as the API.
   - Update garment prices / activate/deactivate items
 - Auth
   - Login (rate limited)
+  - Customer signup (register)
   - Refresh token rotation (stored hashed in DB)
   - Logout (revokes refresh token)
   - Admin can create staff/admin users
@@ -69,6 +79,7 @@ Base URL: `http://localhost:3000`
 
 - `GET /health`
 - `POST /api/auth/login`
+- `POST /api/auth/register` (customer signup)
 - `POST /api/auth/refresh`
 - `POST /api/auth/logout`
 - `GET /api/auth/me`
@@ -115,4 +126,3 @@ What AI got wrong / what I improved:
 - Exports (CSV invoice, daily revenue CSV)
 - Test suite (API integration + UI e2e smoke)
 - Deployment (Render/Railway + Postgres)
-

@@ -77,10 +77,9 @@ async function start() {
   app.listen(config.port, () => {
     console.log(`Server running on http://localhost:${config.port}`);
     if (seed && seed.admin) {
-      console.log("Seeded admin user:");
+      console.log("Admin credentials (fixed):");
       console.log(`  email: ${seed.admin.email}`);
       console.log(`  password: ${seed.admin.password}`);
-      console.log("Set ADMIN_PASSWORD to keep a stable password.");
     }
   });
 }

@@ -171,6 +171,11 @@ function getOrders(req, res) {
   const where = [];
   const params = [];
 
+  if (req.user && req.user.role === "customer") {
+    where.push("o.created_by = ?");
+    params.push(req.user.id);
+  }
+
   if (status) {
     where.push("o.status = ?");
     params.push(status);
@@ -246,6 +251,14 @@ function getOrderById(req, res) {
   if (!order) {
     return sendError(res, 404, "Order not found.");
   }
+  if (req.user && req.user.role === "customer") {
+    const owner = db
+      .prepare("SELECT created_by AS createdBy FROM orders WHERE id = ?")
+      .get([orderId]);
+    if (!owner || owner.createdBy !== req.user.id) {
+      return sendError(res, 403, "Forbidden.");
+    }
+  }
 
   const items = db
     .prepare(
@@ -282,6 +295,9 @@ function updateStatus(req, res) {
     .get([orderId]);
   if (!order) {
     return sendError(res, 404, "Order not found.");
+  }
+  if (req.user && req.user.role === "customer") {
+    return sendError(res, 403, "Forbidden.");
   }
 
   const currentIndex = STATUS_FLOW.indexOf(order.status);

@@ -4,7 +4,7 @@ const { requireAuth, requireRole } = require("../middleware/auth");
 
 const router = express.Router();
 
-router.get("/", requireAuth, listCatalog);
+router.get("/", requireAuth, requireRole("admin", "staff"), listCatalog);
 router.put("/", requireAuth, requireRole("admin"), upsertCatalog);
 
 module.exports = router;

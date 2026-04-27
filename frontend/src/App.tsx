@@ -15,7 +15,7 @@ function Protected({ children }: { children: ReactNode }) {
 }
 
 export default function App() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, role } = useAuth();
 
   return (
     <Routes>
@@ -31,10 +31,18 @@ export default function App() {
           </Protected>
         }
       >
-        <Route index element={<Dashboard />} />
+        <Route
+          index
+          element={
+            role === "customer" ? <Navigate to="/orders" replace /> : <Dashboard />
+          }
+        />
         <Route path="orders" element={<Orders />} />
         <Route path="orders/new" element={<NewOrder />} />
-        <Route path="settings" element={<Settings />} />
+        <Route
+          path="settings"
+          element={role === "admin" ? <Settings /> : <Navigate to="/orders" replace />}
+        />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

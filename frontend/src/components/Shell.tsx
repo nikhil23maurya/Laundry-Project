@@ -48,7 +48,7 @@ export default function Shell() {
             </div>
 
             <div className="mt-5 space-y-1">
-              <Item to="/" label="Dashboard" />
+              {user?.role === "customer" ? null : <Item to="/" label="Dashboard" />}
               <Item to="/orders" label="Orders" />
               <Item to="/orders/new" label="New Order" />
               {user?.role === "admin" ? (

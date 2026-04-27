@@ -230,5 +230,52 @@ module.exports = {
   refresh,
   logout,
   me,
-  createUser
+  createUser,
+  registerCustomer
 };
+
+const registerSchema = z.object({
+  email: z.string().email(),
+  name: z.string().min(1).max(80),
+  password: z.string().min(8).max(72)
+});
+
+async function registerCustomer(req, res) {
+  const parsed = registerSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return sendError(
+      res,
+      400,
+      "Invalid register payload.",
+      parsed.error.flatten()
+    );
+  }
+
+  const db = getDb();
+  const email = parsed.data.email.toLowerCase();
+  const existing = db
+    .prepare("SELECT 1 FROM users WHERE email = ?")
+    .get([email]);
+  if (existing) {
+    return sendError(res, 409, "User already exists.");
+  }
+
+  const passwordHash = await bcrypt.hash(parsed.data.password, 12);
+  const timestamp = nowIso();
+  const id = uuidv4();
+  db.prepare(
+    "INSERT INTO users (id, email, name, role, password_hash, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
+  ).run([
+    id,
+    email,
+    parsed.data.name,
+    "customer",
+    passwordHash,
+    timestamp,
+    timestamp
+  ]);
+
+  return res.status(201).json({
+    user: { id, email, name: parsed.data.name, role: "customer" }
+  });
+}
