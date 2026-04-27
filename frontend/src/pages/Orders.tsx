@@ -34,6 +34,7 @@ export default function Orders() {
   const [garment, setGarment] = useState("");
   const [page, setPage] = useState(1);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const modalOpen = typeof selectedId === "string" && selectedId.length > 0;
   const pageSize = 20;
 
   const queryString = useMemo(() => {
@@ -51,10 +52,18 @@ export default function Orders() {
     queryFn: () => api<OrderListResponse>(`/api/orders?${queryString}`, "GET")
   });
 
+  const safeOrders = useMemo(() => {
+    const rows = data?.data ?? [];
+    return rows.filter(
+      (row): row is OrderListItem =>
+        Boolean(row && typeof row === "object" && "id" in row && (row as any).id)
+    );
+  }, [data]);
+
   const orderDetails = useQuery({
     queryKey: ["order", selectedId],
     queryFn: () => api<any>(`/api/orders/${selectedId}`, "GET"),
-    enabled: Boolean(selectedId)
+    enabled: modalOpen
   });
 
   const advance = useMutation({
@@ -157,14 +166,14 @@ export default function Orders() {
                     Loading…
                   </td>
                 </tr>
-              ) : (data?.data?.length ?? 0) === 0 ? (
+              ) : safeOrders.length === 0 ? (
                 <tr>
                   <td className="px-4 py-6 text-slate-400" colSpan={6}>
                     No orders found.
                   </td>
                 </tr>
               ) : (
-                data?.data?.map((o) => (
+                safeOrders.map((o) => (
                   <tr
                     key={o.id}
                     className="border-t border-white/10 hover:bg-white/5 cursor-pointer"
@@ -226,7 +235,7 @@ export default function Orders() {
       </Card>
 
       <Modal
-        open={Boolean(selectedId)}
+        open={modalOpen}
         title="Order Details"
         onClose={() => setSelectedId(null)}
       >
@@ -236,6 +245,8 @@ export default function Orders() {
           <div className="text-sm text-red-200">
             {(orderDetails.error as any)?.message ?? "Failed to load order."}
           </div>
+        ) : !orderDetails.data ? (
+          <div className="text-sm text-slate-300">No data returned.</div>
         ) : (
           <div className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -275,7 +286,9 @@ export default function Orders() {
             <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
               <div className="text-sm font-bold">Items</div>
               <div className="mt-2 space-y-2 text-sm">
-                {orderDetails.data.items.map((it: any) => (
+                {(orderDetails.data.items ?? [])
+                  .filter((it: any) => it && it.id)
+                  .map((it: any) => (
                   <div key={it.id} className="flex items-center justify-between">
                     <div className="text-slate-300">
                       {it.name} × {it.quantity}
@@ -291,7 +304,9 @@ export default function Orders() {
             <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
               <div className="text-sm font-bold">Timeline</div>
               <div className="mt-2 space-y-2 text-sm text-slate-300">
-                {orderDetails.data.events.map((ev: any) => (
+                {(orderDetails.data.events ?? [])
+                  .filter((ev: any) => ev && ev.id)
+                  .map((ev: any) => (
                   <div key={ev.id} className="flex items-center justify-between gap-3">
                     <div className="font-mono text-xs">
                       {ev.fromStatus ? `${ev.fromStatus} → ` : ""}
